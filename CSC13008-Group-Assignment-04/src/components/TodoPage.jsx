@@ -119,11 +119,10 @@ export default function TodoPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8 font-sans">
-      {/* Component hiển thị thông báo góc màn hình */}
+    // RESPONSIVE FIX: p-3 (mobile) -> md:p-8 (desktop)
+    <div className="min-h-screen bg-gray-50 p-3 md:p-8 font-sans flex flex-col">
       <Toaster position="top-right" reverseOrder={false} />
 
-      {/* Component Modal xác nhận (ẩn hiện theo state isModalOpen) */}
       <ConfirmModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -131,10 +130,9 @@ export default function TodoPage() {
         title={modalContent.title}
         message={modalContent.message}
       />
-
-      <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 flex flex-col h-[85vh]">
-        <div className="bg-blue-600 p-6 text-white flex justify-center items-center shadow-md flex-shrink-0">
-          <h2 className="text-2xl font-bold uppercase tracking-wide">Task Management</h2>
+      <div className="w-full max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 flex flex-col h-[85vh]">
+        <div className="bg-blue-600 p-4 md:p-6 text-white flex justify-center items-center shadow-md flex-shrink-0">
+          <h2 className="text-xl md:text-2xl font-bold uppercase tracking-wide truncate">Task Management</h2>
         </div>
 
         <TodoTabs activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -149,7 +147,7 @@ export default function TodoPage() {
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50/50">
+        <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 bg-gray-50/50">
           {visibleTasks.length === 0 && (
             <div className="text-center py-12 text-gray-400">
               <p>{activeTab === 'active' ? 'No tasks available.' : 'Trash is empty.'}</p>
@@ -170,9 +168,11 @@ export default function TodoPage() {
           ))}
         </div>
       </div>
-      <footer className="mt-6 text-center text-gray-400 text-sm font-medium">
+
+      <footer className="mt-4 md:mt-6 text-center text-gray-400 text-xs md:text-sm font-medium pb-4 md:pb-0">
         &copy; 2025 HCMUS - Web Group Assignment 02
       </footer>
+
     </div>
   );
 }
