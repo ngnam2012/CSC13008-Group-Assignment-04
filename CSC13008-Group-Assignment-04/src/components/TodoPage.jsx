@@ -170,6 +170,9 @@ export default function TodoPage() {
           ))}
         </div>
       </div>
+      <footer className="mt-6 text-center text-gray-400 text-sm font-medium">
+        &copy; 2025 HCMUS - Web Group Assignment 02
+      </footer>
     </div>
   );
 }
