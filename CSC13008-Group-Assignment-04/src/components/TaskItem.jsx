@@ -2,20 +2,12 @@ import { useState } from 'react'; // Thêm useState
 import { Trash2, CheckCircle, Circle, RotateCcw, XCircle, AlertCircle, Pencil, Save, X } from 'lucide-react';
 
 export default function TaskItem({ task, activeTab, onToggle, onEdit, onTrash, onRestore, onDeleteForever }) {
-  // State cho chế độ chỉnh sửa
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(task.text);
-  // Chuyển đổi ngày ISO sang định dạng datetime-local (yyyy-MM-ddThh:mm) để hiển thị trong input
   const [editDate, setEditDate] = useState(task.dueDate ? task.dueDate.slice(0, 16) : '');
 
-  const getStatus = () => {
-    if (task.completed) return 'completed';
-    if (task.dueDate && new Date(task.dueDate) < new Date()) return 'expired';
-    return 'pending';
-  };
-  const status = getStatus();
+  const isOverdue = task.dueDate && !task.completed && new Date(task.dueDate).getTime() < Date.now();
 
-  // Hàm lưu sau khi sửa
   const handleSave = () => {
     if (editText.trim()) {
       onEdit(task.id, editText, editDate ? new Date(editDate).toISOString() : null);
@@ -23,30 +15,32 @@ export default function TaskItem({ task, activeTab, onToggle, onEdit, onTrash, o
     }
   };
 
-  // Hàm hủy sửa (quay về giá trị cũ)
   const handleCancel = () => {
     setEditText(task.text);
     setEditDate(task.dueDate ? task.dueDate.slice(0, 16) : '');
     setIsEditing(false);
   };
 
+  const cardBase = `p-3 mb-5 rounded-xl shadow-md border-2 transition-all duration-300 ease-out hover:-translate-y-[2px] hover:shadow-lg`;
+  const cardStateClass = task.completed
+    ? 'bg-gradient-to-br from-emerald-50/70 to-emerald-100/50 text-slate-500 ring-emerald-200 border-emerald-300'
+    : isOverdue
+      ? 'bg-gradient-to-br from-rose-500/90 to-rose-600/80 text-white ring-rose-300/60 border-rose-400'
+      : 'bg-gradient-to-br from-white/60 to-slate-50/70 text-slate-900 ring-slate-200 border-slate-200';
+
   return (
-    <div className={`flex flex-col p-4 rounded-xl border shadow-sm transition-all bg-white
-      ${status === 'completed' ? 'opacity-60 bg-gray-50' : ''}
-      ${status === 'expired' && !task.isDeleted && !isEditing ? 'border-red-200 bg-red-50/30' : 'border-gray-200'}
-    `}>
-      {/* === CHẾ ĐỘ CHỈNH SỬA (EDIT MODE) === */}
+    <div className={`${cardBase} ${cardStateClass}`}>
       {isEditing ? (
         <div className="flex flex-col gap-3">
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
             className="border border-blue-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
             autoFocus
           />
           <div className="flex items-center gap-2">
-            <input 
+            <input
               type="datetime-local"
               value={editDate}
               onChange={(e) => setEditDate(e.target.value)}
@@ -63,74 +57,37 @@ export default function TaskItem({ task, activeTab, onToggle, onEdit, onTrash, o
           </div>
         </div>
       ) : (
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex gap-3 flex-1">
-            {activeTab === 'active' && (
-              <button 
-                onClick={() => onToggle(task.id)} 
-                className={`mt-1 ${status === 'completed' ? 'text-green-500' : 'text-gray-300 hover:text-blue-500'}`}
-              >
-                {status === 'completed' ? <CheckCircle size={24} fill="currentColor" className="bg-white rounded-full" /> : <Circle size={24} />}
-              </button>
-            )}
-
-            <div className="flex flex-col">
-              <span className={`text-lg font-medium ${status === 'completed' ? 'line-through text-gray-400' : 'text-gray-800'}`}>
-                {task.text}
-              </span>
-              
-              <div className="flex items-center gap-2 mt-1 text-xs font-semibold">
-                {status === 'expired' && !task.isDeleted && (
-                  <span className="text-red-500 flex items-center gap-1">
-                    <AlertCircle size={12}/> Expired
-                  </span>
-                )}
-                {task.dueDate && (
-                  <span className={`${status === 'expired' && !task.isDeleted ? 'text-red-400' : 'text-blue-400'}`}>
-                    {new Date(task.dueDate).toLocaleString('vi-VN')}
-                  </span>
-                )}
-              </div>
-            </div>
+        <div className="flex items-center justify-between">
+          <div className={`${task.completed ? 'line-through text-gray-400' : ''}`}>
+            <span className="task-title block text-lg font-medium">{task.text}</span>
+            <span className="task-deadline text-sm">
+              {task.dueDate ? new Date(task.dueDate).toLocaleString('vi-VN') : ''}
+            </span>
           </div>
 
-          {/* CÁC NÚT HÀNH ĐỘNG */}
-          <div className="flex items-center gap-1">
-            {activeTab === 'active' ? (
+          <div className="flex gap-4 md:gap-5 items-center">
+            {activeTab === 'active' && (
               <>
-                {/* Nút Sửa (Chỉ hiện khi ở tab active và chưa hoàn thành) */}
-                {!task.completed && (
-                  <button 
-                    onClick={() => setIsEditing(true)}
-                    className="text-gray-400 hover:text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition"
-                    title="Edit"
-                  >
-                    <Pencil size={18} />
-                  </button>
-                )}
-                <button 
-                  onClick={() => onTrash(task.id)}
-                  className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition"
-                  title="Add to trash"
+                <button
+                  onClick={() => onToggle(task.id)}
+                  className={`btn-toggle text-sm md:text-base px-2 py-1 rounded ring-1 ring-inset transition-all duration-200 ${isOverdue ? 'bg-rose-700 text-white font-semibold ring-rose-300 md:hover:bg-rose-600' : task.completed ? 'bg-emerald-500 text-white ring-emerald-300 md:hover:bg-emerald-600' : 'bg-slate-200 text-slate-900 ring-slate-300 md:hover:bg-slate-300'}`}
                 >
-                  <Trash2 size={20} />
+                  {isOverdue ? 'Overdue' : task.completed ? 'Checked' : 'Pending'}
+                </button>
+
+                <button onClick={() => onTrash(task.id)} className="btn-delete text-sm md:text-base px-2 py-1 rounded bg-white/10 backdrop-blur-md md:hover:bg-white/60 ring-1 ring-inset ring-slate-300/70 shadow md:hover:shadow-md">
+                  🗑️
                 </button>
               </>
-            ) : (
+            )}
+
+            {activeTab === 'trash' && (
               <>
-                <button 
-                  onClick={() => onRestore(task.id)}
-                  className="text-blue-400 hover:text-blue-600 hover:bg-blue-50 p-2 rounded-lg transition"
-                  title="Restore task"
-                >
-                  <RotateCcw size={20} />
+                <button onClick={() => onRestore(task.id)} className="btn-restore text-sm md:text-base px-2 py-1 rounded bg-emerald-500 text-white ring-1 ring-inset ring-emerald-300 border-2 border-emerald-800 shadow md:hover:bg-emerald-600">
+                  Restore
                 </button>
-                <button 
-                  onClick={() => onDeleteForever(task.id)}
-                  className="text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition"
-                  title="Permantly delete"
-                >
-                  <XCircle size={20} />
+                <button onClick={() => onDeleteForever(task.id)} className="btn-harddelete text-sm md:text-base px-2 py-1 rounded bg-rose-600 border-2 border-rose-900 text-white ring-1 ring-inset ring-rose-300 shadow md:hover:bg-rose-700">
+                  Delete forever
                 </button>
               </>
             )}
