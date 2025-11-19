@@ -26,7 +26,7 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
             onClick={onClose}
             className="px-4 py-2 text-gray-700 font-medium bg-gray-100 hover:bg-gray-200 rounded-lg transition"
           >
-            Hủy bỏ
+            Cancel
           </button>
           <button 
             onClick={() => {
@@ -35,7 +35,7 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
             }}
             className="px-4 py-2 text-white font-bold bg-red-600 hover:bg-red-700 rounded-lg shadow-md transition flex items-center gap-2"
           >
-            Xác nhận xóa
+            Confirm
           </button>
         </div>
         
