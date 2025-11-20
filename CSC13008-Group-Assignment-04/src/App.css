@@ -40,3 +40,14 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Nav link active state similar to static index.html */
+.nav-link[data-active="true"] {
+  border-bottom: 2px solid #4f46e5;
+  color: #4f46e5;
+}
+
+.nav-link:hover {
+  border-bottom: 2px solid #4f46e5;
+  color: #4f46e5;
+}
