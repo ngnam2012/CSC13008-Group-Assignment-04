@@ -1,5 +1,5 @@
-import { useState } from 'react'; // Thêm useState
-import { Trash2, CheckCircle, Circle, RotateCcw, XCircle, AlertCircle, Pencil, Save, X } from 'lucide-react';
+import { useState } from 'react';
+import { Trash2, RotateCcw, Pencil, Save, X } from 'lucide-react';
 
 export default function TaskItem({ task, activeTab, onToggle, onEdit, onTrash, onRestore, onDeleteForever }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -31,63 +31,101 @@ export default function TaskItem({ task, activeTab, onToggle, onEdit, onTrash, o
   return (
     <div className={`${cardBase} ${cardStateClass}`}>
       {isEditing ? (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 animate-in fade-in duration-200">
           <input
             type="text"
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
-            className="border border-blue-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
+            className="border border-blue-300 rounded p-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-200"
             autoFocus
+            placeholder="Enter task content..."
           />
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 justify-between">
             <input
               type="datetime-local"
               value={editDate}
               onChange={(e) => setEditDate(e.target.value)}
-              className="border border-gray-200 rounded p-1 text-sm text-gray-600"
+              className="border border-gray-200 rounded p-1 text-sm text-gray-600 focus:outline-none"
             />
-            <div className="flex-1 flex justify-end gap-2">
-              <button onClick={handleSave} className="text-green-600 hover:bg-green-50 p-1 rounded">
-                <Save size={20} />
+            <div className="flex gap-2">
+              <button 
+                onClick={handleSave} 
+                className="bg-white/80 p-1.5 rounded hover:bg-green-100 text-green-600 shadow-sm transition"
+                title="Save changes"
+              >
+                <Save size={18} />
               </button>
-              <button onClick={handleCancel} className="text-red-500 hover:bg-red-50 p-1 rounded">
-                <X size={20} />
+              <button 
+                onClick={handleCancel} 
+                className="bg-white/80 p-1.5 rounded hover:bg-red-100 text-red-500 shadow-sm transition"
+                title="Cancel"
+              >
+                <X size={18} />
               </button>
             </div>
           </div>
         </div>
       ) : (
-        <div className="flex items-center justify-between">
-          <div className={`${task.completed ? 'line-through text-gray-400' : ''}`}>
-            <span className="task-title block text-lg font-medium">{task.text}</span>
-            <span className="task-deadline text-sm">
-              {task.dueDate ? new Date(task.dueDate).toLocaleString('vi-VN') : ''}
+        <div className="flex items-center justify-between gap-3">
+          <div className={`flex-1 min-w-0 ${task.completed ? 'line-through opacity-75' : ''}`}>
+            <span className="task-title block text-lg font-medium break-words">{task.text}</span>
+            <span className={`task-deadline text-xs md:text-sm ${isOverdue ? 'font-bold' : 'opacity-80'}`}>
+              {task.dueDate ? new Date(task.dueDate).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' }) : ''}
             </span>
           </div>
 
-          <div className="flex gap-4 md:gap-5 items-center">
+          <div className="flex gap-2 md:gap-3 items-center shrink-0">
             {activeTab === 'active' && (
               <>
                 <button
                   onClick={() => onToggle(task.id)}
-                  className={`btn-toggle text-sm md:text-base px-2 py-1 rounded ring-1 ring-inset transition-all duration-200 ${isOverdue ? 'bg-rose-700 text-white font-semibold ring-rose-300 md:hover:bg-rose-600' : task.completed ? 'bg-emerald-500 text-white ring-emerald-300 md:hover:bg-emerald-600' : 'bg-slate-200 text-slate-900 ring-slate-300 md:hover:bg-slate-300'}`}
+                  className={`btn-toggle text-xs md:text-sm px-2 py-1.5 rounded ring-1 ring-inset transition-all duration-200 font-medium
+                    ${isOverdue 
+                      ? 'bg-rose-700 text-white ring-rose-300 hover:bg-rose-800' 
+                      : task.completed 
+                        ? 'bg-emerald-500 text-white ring-emerald-300 hover:bg-emerald-600' 
+                        : 'bg-white text-slate-700 ring-slate-300 hover:bg-slate-100'
+                    }`}
+                  title="Toggle status"
                 >
-                  {isOverdue ? 'Overdue' : task.completed ? 'Checked' : 'Pending'}
+                  {task.completed ? 'Checked' : isOverdue ? 'Overdue' : 'Pending'}
                 </button>
 
-                <button onClick={() => onTrash(task.id)} className="btn-delete text-sm md:text-base px-2 py-1 rounded bg-white/10 backdrop-blur-md md:hover:bg-white/60 ring-1 ring-inset ring-slate-300/70 shadow md:hover:shadow-md">
-                  🗑️
+                {!task.completed && (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="btn-edit p-1.5 rounded bg-white/20 hover:bg-blue-500 hover:text-white text-current ring-1 ring-inset ring-black/10 transition-all shadow-sm"
+                    title="Edit task"
+                  >
+                    <Pencil size={16} />
+                  </button>
+                )}
+
+                <button 
+                  onClick={() => onTrash(task.id)} 
+                  className="btn-delete p-1.5 rounded bg-white/20 hover:bg-red-500 hover:text-white text-current ring-1 ring-inset ring-black/10 transition-all shadow-sm"
+                  title="Move to trash"
+                >
+                  <Trash2 size={16} />
                 </button>
               </>
             )}
 
             {activeTab === 'trash' && (
               <>
-                <button onClick={() => onRestore(task.id)} className="btn-restore text-sm md:text-base px-2 py-1 rounded bg-emerald-500 text-white ring-1 ring-inset ring-emerald-300 border-2 border-emerald-800 shadow md:hover:bg-emerald-600">
-                  Restore
+                <button 
+                  onClick={() => onRestore(task.id)} 
+                  className="btn-restore text-xs md:text-sm px-2 py-1 rounded bg-emerald-500 text-white ring-1 ring-inset ring-emerald-300 shadow hover:bg-emerald-600"
+                  title="Restore task"
+                >
+                  <RotateCcw size={16} />
                 </button>
-                <button onClick={() => onDeleteForever(task.id)} className="btn-harddelete text-sm md:text-base px-2 py-1 rounded bg-rose-600 border-2 border-rose-900 text-white ring-1 ring-inset ring-rose-300 shadow md:hover:bg-rose-700">
-                  Delete forever
+                <button 
+                  onClick={() => onDeleteForever(task.id)} 
+                  className="btn-harddelete text-xs md:text-sm px-2 py-1 rounded bg-rose-600 text-white ring-1 ring-inset ring-rose-300 shadow hover:bg-rose-700"
+                  title="Delete permanently"
+                >
+                  <Trash2 size={16} />
                 </button>
               </>
             )}

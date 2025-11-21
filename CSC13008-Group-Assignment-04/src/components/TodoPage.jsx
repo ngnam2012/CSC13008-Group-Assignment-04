@@ -216,7 +216,7 @@ export default function TodoPage() {
       </main>
 
       <footer className="mt-4 md:mt-6 text-center text-gray-400 text-xs md:text-sm font-medium pb-4 md:pb-0">
-        &copy; 2025 HCMUS - Web Group Assignment 02
+        &copy; 2025 HCMUS | GA04 - TODO App with React.js
       </footer>
     
     </div>
